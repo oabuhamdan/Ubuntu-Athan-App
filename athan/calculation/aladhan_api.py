@@ -158,8 +158,8 @@ class AladhanAPI:
         19: "Algeria",
         20: "ementerian Agama Republik Indonesia",
         21: "Morocco",
-        22: "Comunidade Islamica de Lisboa,        
-        23: "Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan,        
+        22: "Comunidade Islamica de Lisboa",        
+        23: "Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan",        
     }
     
     def __init__(self, method: int = 2):
