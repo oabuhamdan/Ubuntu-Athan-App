@@ -19,16 +19,29 @@ import pytz
 
 class CalculationMethod(Enum):
     """Prayer time calculation methods with their parameters."""
+    JAFARI = "jafari"  # Shia Ithna-Ashari (Jafari)
+    KARACHI = "karachi"  # University of Islamic Sciences, Karachi
     ISNA = "isna"  # Islamic Society of North America
     MWL = "mwl"  # Muslim World League
-    EGYPT = "egypt"  # Egyptian General Authority of Survey
-    KARACHI = "karachi"  # University of Islamic Sciences, Karachi
     MAKKAH = "makkah"  # Umm al-Qura University, Makkah
-    DUBAI = "dubai"  # Dubai
+    EGYPT = "egypt"  # Egyptian General Authority of Survey
+    TEHRAN = "tehran"  # Institute of Geophysics, University of Tehran
+    GULF = "gulf"  # Gulf Region
     KUWAIT = "kuwait"  # Kuwait
     QATAR = "qatar"  # Qatar
     SINGAPORE = "singapore"  # Singapore
-    TEHRAN = "tehran"  # Institute of Geophysics, University of Tehran
+    FRANCE = "france"  # France
+    TURKEY = "turkey"  # Turkey (Diyanet)
+    RUSSIA = "russia"  # Russia
+    MOONSIGHTING = "moonsighting"  # Moonsighting Committee
+    DUBAI = "dubai"  # Dubai
+    JAKIM = "jakim"  # Department of Islamic Development Malaysia
+    TUNISIA = "tunisia"  # Tunisia
+    ALGERIA = "algeria"  # Algeria
+    KEMENAG = "kemenag"  # Indonesian Ministry of Religious Affairs
+    MOROCCO = "morocco"  # Morocco
+    PORTUGAL = "portugal"  # Portugal
+    JORDAN = "jordan"  # Jordan
 
 
 class Madhab(Enum):
@@ -149,6 +162,15 @@ METHOD_PARAMETERS = {
     CalculationMethod.QATAR: (18.0, 90),
     CalculationMethod.SINGAPORE: (20.0, 18.0),
     CalculationMethod.TEHRAN: (17.7, 14.0),
+    CalculationMethod.ALGERIA: (18.0, 17.0),
+    CalculationMethod.FRANCE: (18.0, 18.0),
+    CalculationMethod.FRANCE_UOIF: (12.0, 12.0),
+    CalculationMethod.JAKIM: (20.0, 18.0),
+    CalculationMethod.KEMENAG: (20.0, 18.0),
+    CalculationMethod.MOONSIGHTING: (18.0, 18.0),
+    CalculationMethod.TUNISIA: (18.0, 18.0),
+    CalculationMethod.TURKEY: (18.0, 17.0),
+    CalculationMethod.JORDAN: (18.0, 18.0),
 }
 
 
