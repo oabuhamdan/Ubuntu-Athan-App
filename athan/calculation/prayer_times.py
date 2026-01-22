@@ -164,7 +164,6 @@ METHOD_PARAMETERS = {
     CalculationMethod.TEHRAN: (17.7, 14.0),
     CalculationMethod.ALGERIA: (18.0, 17.0),
     CalculationMethod.FRANCE: (18.0, 18.0),
-    CalculationMethod.FRANCE_UOIF: (12.0, 12.0),
     CalculationMethod.JAKIM: (20.0, 18.0),
     CalculationMethod.KEMENAG: (20.0, 18.0),
     CalculationMethod.MOONSIGHTING: (18.0, 18.0),
