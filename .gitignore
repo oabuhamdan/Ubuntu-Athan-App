@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.cursor/
+
+# Build artifacts
+*.deb
+*.buildinfo
+*.changes
+debian/.debhelper/
+debian/*.substvars
+debian/*.debhelper.log
+debian/files
+debian/athan-app/
+.pybuild/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Application specific
+*.log
+~/.config/athan-app/
+~/.local/share/athan-app/
+
+# Temporary files
+*.tmp
+*.bak
+*.backup

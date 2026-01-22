@@ -1,0 +1,42 @@
+#!/bin/bash
+set -e
+
+case "$1" in
+    configure)
+        # Update icon cache
+        if [ -x /usr/bin/gtk-update-icon-cache ]; then
+            gtk-update-icon-cache -f -t /usr/share/icons/hicolor || true
+        fi
+        
+        # Update desktop database
+        if [ -x /usr/bin/update-desktop-database ]; then
+            update-desktop-database /usr/share/applications || true
+        fi
+        
+        echo ""
+        echo "=============================================="
+        echo "  Athan App installed successfully!"
+        echo "=============================================="
+        echo ""
+        echo "To start the application:"
+        echo "  - Search for 'Athan' in your applications menu"
+        echo "  - Or run: athan-app"
+        echo ""
+        echo "The background service will start automatically"
+        echo "on your next login, or you can start it now:"
+        echo "  systemctl --user enable --now athan-daemon"
+        echo ""
+        ;;
+    
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+    
+    *)
+        echo "postinst called with unknown argument '$1'" >&2
+        exit 1
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

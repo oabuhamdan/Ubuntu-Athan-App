@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Athan
+GenericName=Prayer Times
+Comment=Islamic Prayer Times Application
+Exec=/usr/bin/athan-app
+Icon=athan-app
+Terminal=false
+Type=Application
+Categories=Utility;
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
+X-GNOME-Autostart-Delay=5

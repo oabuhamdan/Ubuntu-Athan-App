@@ -1,0 +1,70 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "athan-app"
+version = "1.0.0"
+description = "Islamic Prayer Times and Athan Notification"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Athan App Team", email = "contact@athanapp.com"}
+]
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: X11 Applications :: GTK",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Desktop Environment :: Gnome",
+    "Topic :: Religion",
+]
+dependencies = [
+    "pytz>=2023.3",
+    "python-dateutil>=2.8.2",
+]
+
+[project.optional-dependencies]
+geolocation = ["geopy>=2.3.0"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "isort>=5.0",
+    "mypy>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/athan-app/athan-app"
+Documentation = "https://github.com/athan-app/athan-app#readme"
+Repository = "https://github.com/athan-app/athan-app.git"
+Issues = "https://github.com/athan-app/athan-app/issues"
+
+[project.scripts]
+athan-app = "athan_ui:main"
+athan-daemon = "athan_daemon:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["athan*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

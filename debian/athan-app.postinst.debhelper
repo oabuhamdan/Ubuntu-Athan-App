@@ -1,0 +1,29 @@
+
+# Automatically added by dh_python3
+if command -v py3compile >/dev/null 2>&1; then
+	py3compile -p athan-app 
+fi
+if command -v pypy3compile >/dev/null 2>&1; then
+	pypy3compile -p athan-app  || true
+fi
+
+# End automatically added section
+# Automatically added by dh_installsystemduser/13.6ubuntu1
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+	if [ -z "${DPKG_ROOT:-}" ] ; then
+		# This will only remove masks created by d-s-h on package removal.
+		deb-systemd-helper --user unmask 'athan-daemon.service' >/dev/null || true
+
+		# was-enabled defaults to true, so new installations run enable.
+		if deb-systemd-helper --quiet --user was-enabled 'athan-daemon.service' ; then
+			# Enables the unit on first installation, creates new
+			# symlinks on upgrades if the unit file has changed.
+			deb-systemd-helper --user enable 'athan-daemon.service' >/dev/null || true
+		else
+			# Update the statefile to add new symlinks (if any), which need to be
+			# cleaned up on purge. Also remove old symlinks.
+			deb-systemd-helper --user update-state 'athan-daemon.service' >/dev/null || true
+		fi
+	fi
+fi
+# End automatically added section

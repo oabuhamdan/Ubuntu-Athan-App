@@ -1,0 +1,42 @@
+Source: athan-app
+Section: utils
+Priority: optional
+Maintainer: Athan App Team <contact@athanapp.com>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all,
+               python3-setuptools
+Standards-Version: 4.6.0
+Homepage: https://github.com/athan-app/athan-app
+Rules-Requires-Root: no
+
+Package: athan-app
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3 (>= 3.8),
+         python3-gi,
+         python3-gi-cairo,
+         gir1.2-gtk-3.0,
+         gir1.2-ayatanaappindicator3-0.1 | gir1.2-appindicator3-0.1,
+         gstreamer1.0-tools,
+         gstreamer1.0-plugins-base,
+         gstreamer1.0-plugins-good,
+         python3-gst-1.0,
+         python3-dbus,
+         python3-tz,
+         pulseaudio-utils
+Recommends: python3-geopy
+Description: Islamic Prayer Times and Athan Notification
+ Athan App is a comprehensive Islamic prayer times application for
+ Ubuntu/GNOME desktop. It calculates prayer times based on your location
+ and plays the Athan (call to prayer) at the appropriate times.
+ .
+ Features:
+  - Accurate prayer time calculation (ISNA, MWL, and other methods)
+  - Background service for reliable Athan playback
+  - Top panel indicator with countdown
+  - Configurable audio output device
+  - Support for custom Athan audio files
+  - Per-prayer enable/disable
+  - System tray integration

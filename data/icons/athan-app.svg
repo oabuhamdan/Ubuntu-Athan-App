@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#ff6b6b"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="60" fill="url(#bg)" stroke="#0f3460" stroke-width="4"/>
+  
+  <!-- Mosque dome -->
+  <path d="M64 25 C45 25 32 45 32 60 L32 85 L96 85 L96 60 C96 45 83 25 64 25 Z" 
+        fill="url(#accent)" opacity="0.9"/>
+  
+  <!-- Minaret left -->
+  <rect x="24" y="50" width="12" height="40" fill="url(#accent)" opacity="0.8"/>
+  <path d="M30 50 L24 58 L36 58 Z" fill="url(#accent)"/>
+  <circle cx="30" cy="44" r="4" fill="#ffd700"/>
+  
+  <!-- Minaret right -->
+  <rect x="92" y="50" width="12" height="40" fill="url(#accent)" opacity="0.8"/>
+  <path d="M98 50 L92 58 L104 58 Z" fill="url(#accent)"/>
+  <circle cx="98" cy="44" r="4" fill="#ffd700"/>
+  
+  <!-- Central dome detail -->
+  <ellipse cx="64" cy="45" rx="15" ry="10" fill="none" stroke="#ffd700" stroke-width="2"/>
+  
+  <!-- Crescent moon -->
+  <path d="M64 28 C58 28 53 33 53 40 C53 47 58 52 64 52 C58 52 54 47 54 40 C54 33 58 28 64 28"
+        fill="#ffd700" transform="rotate(-20 64 40)"/>
+  
+  <!-- Star -->
+  <polygon points="64,30 66,36 72,36 67,40 69,46 64,43 59,46 61,40 56,36 62,36"
+           fill="#ffd700" transform="translate(20, -5) scale(0.5)"/>
+  
+  <!-- Base/ground -->
+  <rect x="20" y="85" width="88" height="8" rx="2" fill="#0f3460"/>
+  
+  <!-- Sound waves (indicating Athan) -->
+  <path d="M20 64 Q10 64 10 50" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  <path d="M15 64 Q5 64 5 45" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.4"/>
+  
+  <path d="M108 64 Q118 64 118 50" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.6"/>
+  <path d="M113 64 Q123 64 123 45" fill="none" stroke="#00ff88" stroke-width="2" opacity="0.4"/>
+</svg>

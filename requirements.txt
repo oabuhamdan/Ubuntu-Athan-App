@@ -1,0 +1,23 @@
+# Athan App Dependencies
+# Note: Most dependencies are system packages (apt-get)
+# This file is for additional Python packages
+
+# Prayer time calculations
+adhan>=0.0.6
+
+# For fallback audio if GStreamer unavailable
+# (Optional - GStreamer is preferred)
+# pygame>=2.0.0
+
+# Configuration management
+# (Using built-in json, but these are alternatives)
+# pyyaml>=6.0
+
+# Timezone handling
+pytz>=2023.3
+
+# Geolocation (for city search)
+geopy>=2.3.0
+
+# Date/time utilities
+python-dateutil>=2.8.2

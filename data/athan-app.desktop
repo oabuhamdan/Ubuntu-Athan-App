@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Athan
+GenericName=Prayer Times
+Comment=Islamic Prayer Times and Athan Notification
+Exec=/usr/bin/athan-app
+Icon=athan-app
+Terminal=false
+Type=Application
+Categories=Utility;Clock;
+Keywords=prayer;athan;adhan;muslim;islam;salat;salah;time;
+StartupNotify=true
+StartupWMClass=athan-app
+X-GNOME-UsesNotifications=true

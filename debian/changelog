@@ -1,0 +1,14 @@
+athan-app (1.0.0-1) unstable; urgency=medium
+
+  * Initial release.
+  * Features:
+    - Prayer time calculation with multiple methods (ISNA, MWL, etc.)
+    - Background daemon for reliable Athan playback
+    - GNOME top panel indicator with countdown
+    - Audio device selection for Athan output
+    - Custom Athan audio file support
+    - Per-prayer enable/disable
+    - Auto-relaunch capability
+    - System sleep/resume handling
+
+ -- Athan App Team <contact@athanapp.com>  Tue, 20 Jan 2026 12:00:00 +0000
