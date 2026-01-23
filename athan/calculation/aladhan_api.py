@@ -152,6 +152,14 @@ class AladhanAPI:
         13: "Diyanet İşleri Başkanlığı, Turkey",
         14: "Spiritual Administration of Muslims of Russia",
         15: "Moonsighting Committee Worldwide",
+        16: "Dubai",
+        17: "Jabatan Kemajuan Islam Malaysia (JAKIM)",
+        18: "Tunisia",
+        19: "Algeria",
+        20: "ementerian Agama Republik Indonesia",
+        21: "Morocco",
+        22: "Comunidade Islamica de Lisboa",        
+        23: "Ministry of Awqaf, Islamic Affairs and Holy Places, Jordan",        
     }
     
     def __init__(self, method: int = 2):
