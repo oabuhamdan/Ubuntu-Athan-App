@@ -179,20 +179,22 @@ class AudioPlayer:
                 logger.error(f"Audio file not found: {file_path}")
                 return False
             
-            # Build pipeline string
-            # Use pulsesink for device selection
+            # Build pipeline string with improved error handling
+            # Use pulsesink for device selection with client-name for better identification
             if device:
                 # Escape device name for shell safety
                 device_escaped = device.replace('"', '\\"')
-                sink = f'pulsesink device="{device_escaped}"'
+                sink = f'pulsesink device="{device_escaped}" client-name="Athan App"'
             else:
-                sink = 'pulsesink'
+                sink = 'pulsesink client-name="Athan App"'
             
             # Create pipeline based on file type
             # Using decodebin for automatic format detection
             # Escape file path for shell safety
             file_path_escaped = file_path.replace('"', '\\"')
-            pipeline_str = f'filesrc location="{file_path_escaped}" ! decodebin ! audioconvert ! audioresample ! {sink}'
+            
+            # Add volume control element for better audio management
+            pipeline_str = f'filesrc location="{file_path_escaped}" ! decodebin ! audioconvert ! audioresample ! volume name=volume ! {sink}'
             
             logger.debug(f"Creating pipeline: {pipeline_str}")
             
@@ -203,7 +205,24 @@ class AudioPlayer:
                 logger.error(f"Failed to create GStreamer pipeline: {pipeline_str}")
                 return False
             
-            logger.debug(f"Pipeline created successfully: {pipeline}")
+            # Verify we can get the sink element
+            iterator = pipeline.iterate_sinks()
+            has_sink = False
+            while True:
+                ret, element = iterator.next()
+                if ret == Gst.IteratorResult.OK:
+                    has_sink = True
+                    break
+                elif ret == Gst.IteratorResult.DONE:
+                    break
+                elif ret == Gst.IteratorResult.ERROR:
+                    logger.warning("Error iterating pipeline sinks")
+                    break
+            
+            if not has_sink:
+                logger.warning("Pipeline has no sink elements")
+            
+            logger.debug(f"Pipeline created successfully")
             
             # Set up bus to watch for messages
             bus = pipeline.get_bus()
@@ -252,8 +271,19 @@ class AudioPlayer:
                 logger.error(f"GStreamer error: {err.message}")
                 if debug:
                     logger.debug(f"Debug info: {debug}")
+                
+                # Log additional context about the error
+                element_name = message.src.get_name() if message.src else "unknown"
+                logger.error(f"Error from element: {element_name}")
+                
                 self._set_state(PlaybackState.STOPPED)
                 self._cleanup_pipeline()
+                
+            elif msg_type == Gst.MessageType.WARNING:
+                warn, debug = message.parse_warning()
+                logger.warning(f"GStreamer warning: {warn.message}")
+                if debug:
+                    logger.debug(f"Debug info: {debug}")
                 
             elif msg_type == Gst.MessageType.STATE_CHANGED:
                 # Check if this message is from our pipeline
@@ -264,12 +294,18 @@ class AudioPlayer:
                 
                 if pipeline_ref and message.src == pipeline_ref:
                     old_state, new_state, pending = message.parse_state_changed()
+                    logger.debug(f"Pipeline state changed: {old_state.value_nick} -> {new_state.value_nick}")
+                    
                     if new_state == Gst.State.PLAYING:
                         self._set_state(PlaybackState.PLAYING)
                     elif new_state == Gst.State.PAUSED:
                         self._set_state(PlaybackState.PAUSED)
                     elif new_state == Gst.State.NULL:
                         self._set_state(PlaybackState.STOPPED)
+                        
+            elif msg_type == Gst.MessageType.ASYNC_DONE:
+                logger.debug("Pipeline async state change completed")
+                
         except Exception as e:
             logger.error(f"Error handling bus message: {e}", exc_info=True)
         
@@ -291,9 +327,29 @@ class AudioPlayer:
                 self._pipeline.set_state(Gst.State.NULL)
                 self._pipeline = None
     
+    def _is_device_available(self, device: Optional[str]) -> bool:
+        """
+        Check if a specific device is currently available.
+        
+        Args:
+            device: Device name to check (None means system default)
+        
+        Returns:
+            True if device is available or None (default), False otherwise
+        """
+        if not device or device == "@DEFAULT_SINK@":
+            return True  # System default is always "available"
+        
+        try:
+            devices = self.get_audio_devices()
+            return any(d.name == device for d in devices)
+        except Exception as e:
+            logger.warning(f"Error checking device availability: {e}")
+            return False
+    
     def play(self, file_path: str, device: Optional[str] = None) -> bool:
         """
-        Play an audio file.
+        Play an audio file with automatic device fallback.
         
         Args:
             file_path: Path to audio file
@@ -317,28 +373,64 @@ class AudioPlayer:
                 except Exception as e:
                     logger.warning(f"Error stopping previous pipeline: {e}")
             
-            # Create new pipeline (may take time, but we're not holding lock)
-            if not self._create_pipeline(file_path, device):
-                logger.error(f"Failed to create pipeline for {file_path}")
-                return False
+            # Try playing with requested device first, then fallback options
+            devices_to_try = []
             
-            # Start playback (non-blocking, async) - minimal lock time
-            with self._lock:
-                if not self._pipeline:
-                    logger.error("Pipeline is None after creation")
-                    return False
+            # 1. Try requested device if specified and available
+            if device:
+                if self._is_device_available(device):
+                    devices_to_try.append(device)
+                else:
+                    logger.warning(f"Requested device '{device}' is not available, will try fallbacks")
+            
+            # 2. System default as fallback
+            devices_to_try.append(None)  # None means system default
+            
+            # 3. Try any available device as last resort
+            try:
+                available_devices = self.get_audio_devices()
+                for dev in available_devices:
+                    if dev.name not in devices_to_try and dev.name != device:
+                        devices_to_try.append(dev.name)
+            except Exception:
+                pass
+            
+            # Try each device in order
+            last_error = None
+            for attempt_device in devices_to_try:
+                logger.info(f"Attempting playback with device: {attempt_device or 'system default'}")
                 
-                # Set state to PLAYING (async, non-blocking)
-                ret = self._pipeline.set_state(Gst.State.PLAYING)
+                # Create new pipeline (may take time, but we're not holding lock)
+                if not self._create_pipeline(file_path, attempt_device):
+                    logger.warning(f"Failed to create pipeline for device: {attempt_device}")
+                    continue
                 
-                if ret == Gst.StateChangeReturn.FAILURE:
-                    logger.error("Failed to start playback - state change returned FAILURE")
-                    self._pipeline = None
-                    return False
-                
-                # Both ASYNC and SUCCESS are fine - playback will start
-                logger.info(f"Playing: {file_path} on device: {device or 'default'} (state change: {ret})")
-                return True
+                # Start playback (non-blocking, async) - minimal lock time
+                with self._lock:
+                    if not self._pipeline:
+                        logger.error("Pipeline is None after creation")
+                        continue
+                    
+                    # Set state to PLAYING (async, non-blocking)
+                    ret = self._pipeline.set_state(Gst.State.PLAYING)
+                    
+                    if ret == Gst.StateChangeReturn.FAILURE:
+                        logger.warning(f"Failed to start playback on device {attempt_device} - state change returned FAILURE")
+                        self._pipeline = None
+                        continue
+                    
+                    # Both ASYNC and SUCCESS are fine - playback will start
+                    device_desc = attempt_device or 'system default'
+                    if attempt_device != device and device is not None:
+                        logger.warning(f"Playing with fallback device: {device_desc} (requested: {device})")
+                    else:
+                        logger.info(f"Playing: {file_path} on device: {device_desc} (state change: {ret})")
+                    return True
+            
+            # If we get here, all devices failed
+            logger.error(f"Failed to play audio on any available device")
+            return False
+            
         except Exception as e:
             logger.error(f"Error in play(): {e}", exc_info=True)
             with self._lock:
