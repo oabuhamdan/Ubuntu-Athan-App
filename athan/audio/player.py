@@ -25,6 +25,9 @@ Gst.init(None)
 
 logger = logging.getLogger(__name__)
 
+# Constants
+CLIENT_NAME = "Athan App"
+
 
 class PlaybackState(Enum):
     """Audio playback states."""
@@ -184,9 +187,9 @@ class AudioPlayer:
             if device:
                 # Escape device name for shell safety
                 device_escaped = device.replace('"', '\\"')
-                sink = f'pulsesink device="{device_escaped}" client-name="Athan App"'
+                sink = f'pulsesink device="{device_escaped}" client-name="{CLIENT_NAME}"'
             else:
-                sink = 'pulsesink client-name="Athan App"'
+                sink = f'pulsesink client-name="{CLIENT_NAME}"'
             
             # Create pipeline based on file type
             # Using decodebin for automatic format detection
@@ -390,8 +393,10 @@ class AudioPlayer:
             try:
                 available_devices = self.get_audio_devices()
                 for dev in available_devices:
-                    if dev.name not in devices_to_try and dev.name != device:
-                        devices_to_try.append(dev.name)
+                    # Skip if this device is already in our list to try
+                    if dev.name in devices_to_try or (device and dev.name == device):
+                        continue
+                    devices_to_try.append(dev.name)
             except Exception:
                 pass
             

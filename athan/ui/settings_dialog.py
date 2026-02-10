@@ -187,22 +187,22 @@ class SettingsDialog(Gtk.Dialog):
         
         notebook.append_page(
             self._build_location_page(),
-            Gtk.Label(label="📍 Location")
+            Gtk.Label(label="Location")
         )
         
         notebook.append_page(
             self._build_calculation_page(),
-            Gtk.Label(label="🕌 Calculation")
+            Gtk.Label(label="Calculation")
         )
         
         notebook.append_page(
             self._build_audio_page(),
-            Gtk.Label(label="🔊 Audio")
+            Gtk.Label(label="Audio")
         )
         
         notebook.append_page(
             self._build_preferences_page(),
-            Gtk.Label(label="⚙ Preferences")
+            Gtk.Label(label="Preferences")
         )
         
         content.pack_start(notebook, True, True, 0)
@@ -442,6 +442,8 @@ class SettingsDialog(Gtk.Dialog):
         self.fajr_angle_spin = Gtk.SpinButton.new_with_range(10.0, 25.0, 0.1)
         self.fajr_angle_spin.set_digits(1)
         self.fajr_angle_spin.set_valign(Gtk.Align.CENTER)
+        self.fajr_angle_spin.set_tooltip_text("Custom Fajr angle in degrees (10-25)")
+        fajr_label.set_mnemonic_widget(self.fajr_angle_spin)
         fajr_row.pack_end(self.fajr_angle_spin, False, False, 0)
         
         self.fajr_angle_check = Gtk.CheckButton(label="Use custom")
@@ -461,6 +463,8 @@ class SettingsDialog(Gtk.Dialog):
         self.isha_angle_spin = Gtk.SpinButton.new_with_range(10.0, 25.0, 0.1)
         self.isha_angle_spin.set_digits(1)
         self.isha_angle_spin.set_valign(Gtk.Align.CENTER)
+        self.isha_angle_spin.set_tooltip_text("Custom Isha angle in degrees (10-25)")
+        isha_label.set_mnemonic_widget(self.isha_angle_spin)
         isha_row.pack_end(self.isha_angle_spin, False, False, 0)
         
         self.isha_angle_check = Gtk.CheckButton(label="Use custom")
@@ -491,7 +495,7 @@ class SettingsDialog(Gtk.Dialog):
         for prayer in ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']:
             row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
             
-            label = Gtk.Label(label=prayer)
+            label = Gtk.Label(label=f"{prayer} adjustment")
             label.get_style_context().add_class('settings-label')
             label.set_xalign(0)
             label.set_width_chars(10)
@@ -500,6 +504,8 @@ class SettingsDialog(Gtk.Dialog):
             spin = Gtk.SpinButton.new_with_range(-30, 30, 1)
             spin.set_valign(Gtk.Align.CENTER)
             spin.set_width_chars(5)
+            spin.set_tooltip_text(f"Adjust {prayer} time by minutes (-30 to +30)")
+            label.set_mnemonic_widget(spin)
             row.pack_end(spin, False, False, 0)
             
             self.adjustment_spins[prayer.lower()] = spin
