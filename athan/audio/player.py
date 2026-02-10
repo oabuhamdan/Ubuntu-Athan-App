@@ -400,7 +400,7 @@ class AudioPlayer:
                 
                 for dev in available_devices:
                     # Skip if this device is already in our list to try
-                    if dev.name in devices_set or (device and dev.name == device):
+                    if dev.name in devices_set:
                         continue
                     devices_to_try.append(dev.name)
             except Exception:

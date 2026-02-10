@@ -451,7 +451,7 @@ class SettingsDialog(Gtk.Dialog):
         
         self.fajr_angle_check = Gtk.CheckButton(label="Use custom")
         self.fajr_angle_check.set_valign(Gtk.Align.CENTER)
-        self.fajr_angle_check.connect('toggled', lambda c: self.fajr_angle_spin.set_sensitive(c.get_active()))
+        self.fajr_angle_check.connect('toggled', self._on_custom_angle_toggled, self.fajr_angle_spin)
         fajr_row.pack_end(self.fajr_angle_check, False, False, 0)
         
         angles_box.pack_start(fajr_row, False, False, 0)
@@ -472,7 +472,7 @@ class SettingsDialog(Gtk.Dialog):
         
         self.isha_angle_check = Gtk.CheckButton(label="Use custom")
         self.isha_angle_check.set_valign(Gtk.Align.CENTER)
-        self.isha_angle_check.connect('toggled', lambda c: self.isha_angle_spin.set_sensitive(c.get_active()))
+        self.isha_angle_check.connect('toggled', self._on_custom_angle_toggled, self.isha_angle_spin)
         isha_row.pack_end(self.isha_angle_check, False, False, 0)
         
         angles_box.pack_start(isha_row, False, False, 0)
@@ -517,6 +517,10 @@ class SettingsDialog(Gtk.Dialog):
         page.pack_start(adjustments_box, False, False, 0)
         
         return page
+    
+    def _on_custom_angle_toggled(self, check: Gtk.CheckButton, spin: Gtk.SpinButton) -> None:
+        """Handle custom angle checkbox toggle."""
+        spin.set_sensitive(check.get_active())
     
     def _build_audio_page(self) -> Gtk.Widget:
         """Build the audio settings page."""
