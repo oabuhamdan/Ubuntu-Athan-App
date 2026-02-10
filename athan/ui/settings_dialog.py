@@ -21,6 +21,9 @@ from ..config.settings import (
     AppSettings, LocationSettings, AudioSettings,
     AutoRelaunchSettings, UISettings
 )
+from ..calculation.prayer_times import (
+    CalculationMethod, Madhab, HighLatitudeRule, Shafaq, CalculationSettings
+)
 from ..calculation.aladhan_api import AladhanAPI, PrayerTimesManager
 from ..audio.player import AudioPlayer
 
@@ -188,6 +191,11 @@ class SettingsDialog(Gtk.Dialog):
         )
         
         notebook.append_page(
+            self._build_calculation_page(),
+            Gtk.Label(label="🕌 Calculation")
+        )
+        
+        notebook.append_page(
             self._build_audio_page(),
             Gtk.Label(label="🔊 Audio")
         )
@@ -293,6 +301,211 @@ class SettingsDialog(Gtk.Dialog):
         self.location_info_box.pack_start(self.confirm_check, False, False, 4)
         
         page.pack_start(self.location_info_box, False, False, 0)
+        
+        return page
+    
+    def _build_calculation_page(self) -> Gtk.Widget:
+        """Build the calculation method settings page."""
+        page = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=8)
+        page.get_style_context().add_class('settings-page')
+        
+        # Calculation Method section
+        section_label = Gtk.Label(label="Calculation Method")
+        section_label.get_style_context().add_class('section-label')
+        section_label.set_xalign(0)
+        page.pack_start(section_label, False, False, 0)
+        
+        method_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        method_row.get_style_context().add_class('settings-row')
+        
+        method_label = Gtk.Label(label="Prayer Time Calculation Method")
+        method_label.get_style_context().add_class('settings-label')
+        method_label.set_xalign(0)
+        method_row.pack_start(method_label, False, False, 0)
+        
+        sublabel = Gtk.Label(label="Different regions use different calculation standards")
+        sublabel.get_style_context().add_class('settings-sublabel')
+        sublabel.set_xalign(0)
+        sublabel.set_line_wrap(True)
+        method_row.pack_start(sublabel, False, False, 0)
+        
+        self.method_combo = Gtk.ComboBoxText()
+        # Add all calculation methods with descriptive names
+        methods = [
+            (CalculationMethod.ISNA, "ISNA - Islamic Society of North America"),
+            (CalculationMethod.MWL, "MWL - Muslim World League"),
+            (CalculationMethod.EGYPT, "Egyptian General Authority of Survey"),
+            (CalculationMethod.KARACHI, "University of Islamic Sciences, Karachi"),
+            (CalculationMethod.MAKKAH, "Umm al-Qura University, Makkah"),
+            (CalculationMethod.DUBAI, "Dubai"),
+            (CalculationMethod.KUWAIT, "Kuwait"),
+            (CalculationMethod.QATAR, "Qatar"),
+            (CalculationMethod.SINGAPORE, "Majlis Ugama Islam Singapura, Singapore"),
+            (CalculationMethod.TEHRAN, "Institute of Geophysics, University of Tehran"),
+            (CalculationMethod.TURKEY, "Diyanet İşleri Başkanlığı, Turkey"),
+            (CalculationMethod.ALGERIA, "Algeria"),
+            (CalculationMethod.FRANCE, "Union Organization Islamic de France"),
+            (CalculationMethod.JAKIM, "Department of Islamic Development Malaysia"),
+            (CalculationMethod.KEMENAG, "Indonesian Ministry of Religious Affairs"),
+            (CalculationMethod.MOROCCO, "Morocco"),
+            (CalculationMethod.TUNISIA, "Tunisia"),
+            (CalculationMethod.JORDAN, "Ministry of Awqaf, Jordan"),
+            (CalculationMethod.RUSSIA, "Spiritual Administration of Muslims of Russia"),
+            (CalculationMethod.MOONSIGHTING, "Moonsighting Committee Worldwide"),
+            (CalculationMethod.PORTUGAL, "Comunidade Islamica de Lisboa"),
+        ]
+        
+        for method, description in methods:
+            self.method_combo.append(method.value, description)
+        
+        method_row.pack_start(self.method_combo, False, False, 0)
+        page.pack_start(method_row, False, False, 0)
+        
+        # Madhab (Asr calculation) section
+        section_label = Gtk.Label(label="Asr Calculation")
+        section_label.get_style_context().add_class('section-label')
+        section_label.set_xalign(0)
+        page.pack_start(section_label, False, False, 0)
+        
+        madhab_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        madhab_row.get_style_context().add_class('settings-row')
+        
+        madhab_label = Gtk.Label(label="Juristic Method (Madhab)")
+        madhab_label.get_style_context().add_class('settings-label')
+        madhab_label.set_xalign(0)
+        madhab_row.pack_start(madhab_label, False, False, 0)
+        
+        sublabel = Gtk.Label(label="Shafi: Asr when shadow = object length\nHanafi: Asr when shadow = 2x object length")
+        sublabel.get_style_context().add_class('settings-sublabel')
+        sublabel.set_xalign(0)
+        sublabel.set_line_wrap(True)
+        madhab_row.pack_start(sublabel, False, False, 0)
+        
+        self.madhab_combo = Gtk.ComboBoxText()
+        self.madhab_combo.append(Madhab.SHAFI.value, "Shafi, Maliki, Hanbali")
+        self.madhab_combo.append(Madhab.HANAFI.value, "Hanafi")
+        madhab_row.pack_start(self.madhab_combo, False, False, 0)
+        
+        page.pack_start(madhab_row, False, False, 0)
+        
+        # High Latitude Rule section
+        section_label = Gtk.Label(label="High Latitude Adjustment")
+        section_label.get_style_context().add_class('section-label')
+        section_label.set_xalign(0)
+        page.pack_start(section_label, False, False, 0)
+        
+        high_lat_row = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=4)
+        high_lat_row.get_style_context().add_class('settings-row')
+        
+        high_lat_label = Gtk.Label(label="Adjustment for High Latitudes")
+        high_lat_label.get_style_context().add_class('settings-label')
+        high_lat_label.set_xalign(0)
+        high_lat_row.pack_start(high_lat_label, False, False, 0)
+        
+        sublabel = Gtk.Label(label="Used for locations where normal calculations don't work")
+        sublabel.get_style_context().add_class('settings-sublabel')
+        sublabel.set_xalign(0)
+        sublabel.set_line_wrap(True)
+        high_lat_row.pack_start(sublabel, False, False, 0)
+        
+        self.high_lat_combo = Gtk.ComboBoxText()
+        self.high_lat_combo.append(HighLatitudeRule.MIDDLE_OF_NIGHT.value, "Middle of the Night")
+        self.high_lat_combo.append(HighLatitudeRule.SEVENTH_OF_NIGHT.value, "Seventh of the Night")
+        self.high_lat_combo.append(HighLatitudeRule.TWILIGHT_ANGLE.value, "Twilight Angle")
+        self.high_lat_combo.append(HighLatitudeRule.NONE.value, "None")
+        high_lat_row.pack_start(self.high_lat_combo, False, False, 0)
+        
+        page.pack_start(high_lat_row, False, False, 0)
+        
+        # Custom Angles section
+        section_label = Gtk.Label(label="Custom Angles (Optional)")
+        section_label.get_style_context().add_class('section-label')
+        section_label.set_xalign(0)
+        page.pack_start(section_label, False, False, 0)
+        
+        angles_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        angles_box.get_style_context().add_class('settings-row')
+        
+        sublabel = Gtk.Label(label="Override default angles from calculation method")
+        sublabel.get_style_context().add_class('settings-sublabel')
+        sublabel.set_xalign(0)
+        sublabel.set_line_wrap(True)
+        angles_box.pack_start(sublabel, False, False, 0)
+        
+        # Fajr angle
+        fajr_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        fajr_label = Gtk.Label(label="Fajr Angle (degrees)")
+        fajr_label.get_style_context().add_class('settings-label')
+        fajr_label.set_xalign(0)
+        fajr_row.pack_start(fajr_label, True, True, 0)
+        
+        self.fajr_angle_spin = Gtk.SpinButton.new_with_range(10.0, 25.0, 0.1)
+        self.fajr_angle_spin.set_digits(1)
+        self.fajr_angle_spin.set_valign(Gtk.Align.CENTER)
+        fajr_row.pack_end(self.fajr_angle_spin, False, False, 0)
+        
+        self.fajr_angle_check = Gtk.CheckButton(label="Use custom")
+        self.fajr_angle_check.set_valign(Gtk.Align.CENTER)
+        self.fajr_angle_check.connect('toggled', lambda c: self.fajr_angle_spin.set_sensitive(c.get_active()))
+        fajr_row.pack_end(self.fajr_angle_check, False, False, 0)
+        
+        angles_box.pack_start(fajr_row, False, False, 0)
+        
+        # Isha angle
+        isha_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        isha_label = Gtk.Label(label="Isha Angle (degrees)")
+        isha_label.get_style_context().add_class('settings-label')
+        isha_label.set_xalign(0)
+        isha_row.pack_start(isha_label, True, True, 0)
+        
+        self.isha_angle_spin = Gtk.SpinButton.new_with_range(10.0, 25.0, 0.1)
+        self.isha_angle_spin.set_digits(1)
+        self.isha_angle_spin.set_valign(Gtk.Align.CENTER)
+        isha_row.pack_end(self.isha_angle_spin, False, False, 0)
+        
+        self.isha_angle_check = Gtk.CheckButton(label="Use custom")
+        self.isha_angle_check.set_valign(Gtk.Align.CENTER)
+        self.isha_angle_check.connect('toggled', lambda c: self.isha_angle_spin.set_sensitive(c.get_active()))
+        isha_row.pack_end(self.isha_angle_check, False, False, 0)
+        
+        angles_box.pack_start(isha_row, False, False, 0)
+        
+        page.pack_start(angles_box, False, False, 0)
+        
+        # Time Adjustments section
+        section_label = Gtk.Label(label="Time Adjustments (Minutes)")
+        section_label.get_style_context().add_class('section-label')
+        section_label.set_xalign(0)
+        page.pack_start(section_label, False, False, 0)
+        
+        adjustments_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
+        adjustments_box.get_style_context().add_class('settings-row')
+        
+        sublabel = Gtk.Label(label="Fine-tune prayer times by adding or subtracting minutes")
+        sublabel.get_style_context().add_class('settings-sublabel')
+        sublabel.set_xalign(0)
+        sublabel.set_line_wrap(True)
+        adjustments_box.pack_start(sublabel, False, False, 0)
+        
+        self.adjustment_spins = {}
+        for prayer in ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha']:
+            row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+            
+            label = Gtk.Label(label=prayer)
+            label.get_style_context().add_class('settings-label')
+            label.set_xalign(0)
+            label.set_width_chars(10)
+            row.pack_start(label, False, False, 0)
+            
+            spin = Gtk.SpinButton.new_with_range(-30, 30, 1)
+            spin.set_valign(Gtk.Align.CENTER)
+            spin.set_width_chars(5)
+            row.pack_end(spin, False, False, 0)
+            
+            self.adjustment_spins[prayer.lower()] = spin
+            adjustments_box.pack_start(row, False, False, 0)
+        
+        page.pack_start(adjustments_box, False, False, 0)
         
         return page
     
@@ -575,6 +788,39 @@ class SettingsDialog(Gtk.Dialog):
             self.verify_status.get_style_context().remove_class('verify-pending')
             self.verify_status.get_style_context().add_class('verify-success')
         
+        # Calculation settings
+        calc = self.settings.calculation
+        self.method_combo.set_active_id(calc.method.value)
+        self.madhab_combo.set_active_id(calc.madhab.value)
+        self.high_lat_combo.set_active_id(calc.high_latitude_rule.value)
+        
+        # Custom angles
+        if calc.fajr_angle is not None:
+            self.fajr_angle_check.set_active(True)
+            self.fajr_angle_spin.set_value(calc.fajr_angle)
+            self.fajr_angle_spin.set_sensitive(True)
+        else:
+            self.fajr_angle_check.set_active(False)
+            self.fajr_angle_spin.set_value(15.0)
+            self.fajr_angle_spin.set_sensitive(False)
+        
+        if calc.isha_angle is not None:
+            self.isha_angle_check.set_active(True)
+            self.isha_angle_spin.set_value(calc.isha_angle)
+            self.isha_angle_spin.set_sensitive(True)
+        else:
+            self.isha_angle_check.set_active(False)
+            self.isha_angle_spin.set_value(15.0)
+            self.isha_angle_spin.set_sensitive(False)
+        
+        # Time adjustments
+        self.adjustment_spins['fajr'].set_value(calc.fajr_adjustment)
+        self.adjustment_spins['sunrise'].set_value(calc.sunrise_adjustment)
+        self.adjustment_spins['dhuhr'].set_value(calc.dhuhr_adjustment)
+        self.adjustment_spins['asr'].set_value(calc.asr_adjustment)
+        self.adjustment_spins['maghrib'].set_value(calc.maghrib_adjustment)
+        self.adjustment_spins['isha'].set_value(calc.isha_adjustment)
+        
         # Audio
         audio = self.settings.audio
         self.device_combo.set_active_id(audio.device_name or '')
@@ -597,8 +843,9 @@ class SettingsDialog(Gtk.Dialog):
         self.relaunch_delay_spin.set_value(relaunch.delay_minutes)
     
     def _save_settings(self) -> bool:
-        """Save UI values to settings. Returns True if location changed."""
+        """Save UI values to settings. Returns True if location or calculation changed."""
         location_changed = False
+        calculation_changed = False
         
         # Location - save if verified
         if self._location_verified and self._verified_info:
@@ -624,6 +871,60 @@ class SettingsDialog(Gtk.Dialog):
             )
             
             logger.info(f"Location saved: {new_city}, {new_country} ({new_lat}, {new_lon})")
+        
+        # Calculation settings
+        old_calc = self.settings.calculation
+        new_method = CalculationMethod(self.method_combo.get_active_id())
+        new_madhab = Madhab(self.madhab_combo.get_active_id())
+        new_high_lat = HighLatitudeRule(self.high_lat_combo.get_active_id())
+        
+        # Check if calculation settings changed
+        if (old_calc.method != new_method or 
+            old_calc.madhab != new_madhab or 
+            old_calc.high_latitude_rule != new_high_lat):
+            calculation_changed = True
+        
+        # Custom angles
+        fajr_angle = self.fajr_angle_spin.get_value() if self.fajr_angle_check.get_active() else None
+        isha_angle = self.isha_angle_spin.get_value() if self.isha_angle_check.get_active() else None
+        
+        if old_calc.fajr_angle != fajr_angle or old_calc.isha_angle != isha_angle:
+            calculation_changed = True
+        
+        # Time adjustments
+        adjustments = {
+            'fajr': int(self.adjustment_spins['fajr'].get_value()),
+            'sunrise': int(self.adjustment_spins['sunrise'].get_value()),
+            'dhuhr': int(self.adjustment_spins['dhuhr'].get_value()),
+            'asr': int(self.adjustment_spins['asr'].get_value()),
+            'maghrib': int(self.adjustment_spins['maghrib'].get_value()),
+            'isha': int(self.adjustment_spins['isha'].get_value()),
+        }
+        
+        if (old_calc.fajr_adjustment != adjustments['fajr'] or
+            old_calc.sunrise_adjustment != adjustments['sunrise'] or
+            old_calc.dhuhr_adjustment != adjustments['dhuhr'] or
+            old_calc.asr_adjustment != adjustments['asr'] or
+            old_calc.maghrib_adjustment != adjustments['maghrib'] or
+            old_calc.isha_adjustment != adjustments['isha']):
+            calculation_changed = True
+        
+        # Save calculation settings
+        self.settings.calculation = CalculationSettings(
+            method=new_method,
+            madhab=new_madhab,
+            high_latitude_rule=new_high_lat,
+            polar_circle_resolution=old_calc.polar_circle_resolution,
+            shafaq=old_calc.shafaq,
+            fajr_angle=fajr_angle,
+            isha_angle=isha_angle,
+            fajr_adjustment=adjustments['fajr'],
+            sunrise_adjustment=adjustments['sunrise'],
+            dhuhr_adjustment=adjustments['dhuhr'],
+            asr_adjustment=adjustments['asr'],
+            maghrib_adjustment=adjustments['maghrib'],
+            isha_adjustment=adjustments['isha'],
+        )
         
         # Audio
         device_id = self.device_combo.get_active_id()
@@ -652,15 +953,15 @@ class SettingsDialog(Gtk.Dialog):
         # Persist to disk
         self.settings.save()
         logger.info("Settings saved to disk")
-        return location_changed
+        return location_changed or calculation_changed
     
     def do_response(self, response_id: int) -> None:
         """Handle dialog response."""
         if response_id == Gtk.ResponseType.APPLY:
-            location_changed = self._save_settings()
+            settings_changed = self._save_settings()
             
-            # Refresh main window if location changed
-            if location_changed:
+            # Refresh main window if location or calculation changed
+            if settings_changed:
                 loc = self.settings.location
                 # Clear cache and fetch new times with coordinates
                 if hasattr(self.parent_window, 'prayer_manager') and self.parent_window.prayer_manager:
