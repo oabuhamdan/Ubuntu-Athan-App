@@ -196,7 +196,10 @@ class AudioPlayer:
             # Escape file path for shell safety
             file_path_escaped = file_path.replace('"', '\\"')
             
-            # Add volume control element for better audio management
+            # Add volume control element for potential future use
+            # The volume element is included in the pipeline for extensibility
+            # (e.g., future per-prayer volume control or fade effects)
+            # It currently uses default volume (1.0) but can be accessed via set_volume()
             pipeline_str = f'filesrc location="{file_path_escaped}" ! decodebin ! audioconvert ! audioresample ! volume name=volume ! {sink}'
             
             logger.debug(f"Creating pipeline: {pipeline_str}")
@@ -392,9 +395,12 @@ class AudioPlayer:
             # 3. Try any available device as last resort
             try:
                 available_devices = self.get_audio_devices()
+                # Build set of device names already in the list for faster lookup
+                devices_set = {d for d in devices_to_try if d is not None}
+                
                 for dev in available_devices:
                     # Skip if this device is already in our list to try
-                    if dev.name in devices_to_try or (device and dev.name == device):
+                    if dev.name in devices_set or (device and dev.name == device):
                         continue
                     devices_to_try.append(dev.name)
             except Exception:

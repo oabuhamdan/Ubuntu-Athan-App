@@ -29,6 +29,9 @@ from ..audio.player import AudioPlayer
 
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_ANGLE = 15.0  # Default angle for Fajr/Isha in degrees
+
 
 class SettingsDialog(Gtk.Dialog):
     """
@@ -807,7 +810,7 @@ class SettingsDialog(Gtk.Dialog):
             self.fajr_angle_spin.set_sensitive(True)
         else:
             self.fajr_angle_check.set_active(False)
-            self.fajr_angle_spin.set_value(15.0)
+            self.fajr_angle_spin.set_value(DEFAULT_ANGLE)
             self.fajr_angle_spin.set_sensitive(False)
         
         if calc.isha_angle is not None:
@@ -816,7 +819,7 @@ class SettingsDialog(Gtk.Dialog):
             self.isha_angle_spin.set_sensitive(True)
         else:
             self.isha_angle_check.set_active(False)
-            self.isha_angle_spin.set_value(15.0)
+            self.isha_angle_spin.set_value(DEFAULT_ANGLE)
             self.isha_angle_spin.set_sensitive(False)
         
         # Time adjustments
