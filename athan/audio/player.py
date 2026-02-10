@@ -395,12 +395,12 @@ class AudioPlayer:
             # 3. Try any available device as last resort
             try:
                 available_devices = self.get_audio_devices()
-                # Build set of device names already in the list for faster lookup
-                devices_set = {d for d in devices_to_try if d is not None}
+                # Build set of device names already queued to avoid duplicates
+                tried_device_names = {d for d in devices_to_try if d is not None}
                 
                 for dev in available_devices:
                     # Skip if this device is already in our list to try
-                    if dev.name in devices_set:
+                    if dev.name in tried_device_names:
                         continue
                     devices_to_try.append(dev.name)
             except Exception:
@@ -439,7 +439,11 @@ class AudioPlayer:
                     return True
             
             # If we get here, all devices failed
-            logger.error(f"Failed to play audio on any available device")
+            device_count = len(devices_to_try)
+            logger.error(
+                f"Failed to play audio on any of {device_count} available device(s). "
+                f"Please check audio device configuration and ensure audio devices are not muted."
+            )
             return False
             
         except Exception as e:

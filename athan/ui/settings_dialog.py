@@ -188,25 +188,29 @@ class SettingsDialog(Gtk.Dialog):
         
         notebook = Gtk.Notebook()
         
-        notebook.append_page(
-            self._build_location_page(),
-            Gtk.Label(label="Location")
-        )
+        # Location tab
+        location_tab = self._build_location_page()
+        location_label = Gtk.Label(label="Location")
+        location_label.set_tooltip_text("Configure your location for accurate prayer times")
+        notebook.append_page(location_tab, location_label)
         
-        notebook.append_page(
-            self._build_calculation_page(),
-            Gtk.Label(label="Calculation")
-        )
+        # Calculation tab
+        calculation_tab = self._build_calculation_page()
+        calculation_label = Gtk.Label(label="Calculation")
+        calculation_label.set_tooltip_text("Configure prayer time calculation method and adjustments")
+        notebook.append_page(calculation_tab, calculation_label)
         
-        notebook.append_page(
-            self._build_audio_page(),
-            Gtk.Label(label="Audio")
-        )
+        # Audio tab
+        audio_tab = self._build_audio_page()
+        audio_label = Gtk.Label(label="Audio")
+        audio_label.set_tooltip_text("Configure audio output device and Athan playback")
+        notebook.append_page(audio_tab, audio_label)
         
-        notebook.append_page(
-            self._build_preferences_page(),
-            Gtk.Label(label="Preferences")
-        )
+        # Preferences tab
+        preferences_tab = self._build_preferences_page()
+        preferences_label = Gtk.Label(label="Preferences")
+        preferences_label.set_tooltip_text("Configure display and behavior preferences")
+        notebook.append_page(preferences_tab, preferences_label)
         
         content.pack_start(notebook, True, True, 0)
     
